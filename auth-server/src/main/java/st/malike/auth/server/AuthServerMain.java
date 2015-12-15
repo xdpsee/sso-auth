@@ -25,7 +25,7 @@ import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import st.malike.auth.server.config.CustomMongoDBConvertor;
+import st.malike.auth.server.config.CustomMongoDBConverter;
 
 /**
  *
@@ -47,14 +47,14 @@ public class AuthServerMain {
     }
 
     @Autowired
-    private CustomMongoDBConvertor customMongoDBConvertor;
+    private CustomMongoDBConverter customMongoDBConverter;
     @Autowired
     private MongoDbFactory mongoDbFactory;
 
     @Bean
     public CustomConversions customConversions() {
         List<Converter<?, ?>> converterList = new ArrayList<>();
-        converterList.add(customMongoDBConvertor);
+        converterList.add(customMongoDBConverter);
         return new CustomConversions(converterList);
     }
 
@@ -72,7 +72,9 @@ public class AuthServerMain {
         try {
             return new MongoTemplate(mongoDbFactory, mongoConverter()); // a mongotemplate with custom convertor
         } catch (Exception e) {
+            e.printStackTrace();
         }
+
         return null;
     }
 

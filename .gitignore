@@ -1,2 +1,4 @@
-/client/target/
-/auth-server/target/
+.idea
+target
+.DS_Store
+*.iml

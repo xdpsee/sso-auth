@@ -19,10 +19,10 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.AuthenticationKeyGenerator;
 import org.springframework.security.oauth2.provider.token.DefaultAuthenticationKeyGenerator;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import st.malike.auth.server.model.OAuth2AuthenticationAccessToken;
-import st.malike.auth.server.model.OAuth2AuthenticationRefreshToken;
-import st.malike.auth.server.repository.OAuth2AccessTokenRepository;
-import st.malike.auth.server.repository.OAuth2RefreshTokenRepository;
+import st.malike.auth.server.model.AccessToken;
+import st.malike.auth.server.model.RefreshToken;
+import st.malike.auth.server.repository.AccessTokenRepository;
+import st.malike.auth.server.repository.RefreshTokenRepository;
 
 /**
  *
@@ -31,9 +31,9 @@ import st.malike.auth.server.repository.OAuth2RefreshTokenRepository;
 public class TokenStoreService implements TokenStore {
 
     @Autowired
-    private OAuth2AccessTokenRepository oAuth2AccessTokenRepository;
+    private AccessTokenRepository oAuth2AccessTokenRepository;
     @Autowired
-    private OAuth2RefreshTokenRepository oAuth2RefreshTokenRepository;
+    private RefreshTokenRepository refreshTokenRepository;
     @Autowired
     private MongoTemplate mongoTemplate;
     private final AuthenticationKeyGenerator authenticationKeyGenerator = new DefaultAuthenticationKeyGenerator();
@@ -47,33 +47,33 @@ public class TokenStoreService implements TokenStore {
     public OAuth2Authentication readAuthentication(String tokenId) {
         Query query = new Query();
         query.addCriteria(Criteria.where("tokenId").is(tokenId));
-        OAuth2AuthenticationAccessToken token = mongoTemplate.findOne(query, OAuth2AuthenticationAccessToken.class, "oauth2_access_token");
+        AccessToken token = mongoTemplate.findOne(query, AccessToken.class, "oauth2_access_token");
         return null == token ? null : token.getAuthentication();
     }
 
     @Override
     public void storeAccessToken(OAuth2AccessToken token, OAuth2Authentication authentication) {
-        OAuth2AuthenticationAccessToken oAuth2AuthenticationAccessToken = new OAuth2AuthenticationAccessToken(token,
+        AccessToken accessToken = new AccessToken(token,
                 authentication, authenticationKeyGenerator.extractKey(authentication));
-        mongoTemplate.save(oAuth2AuthenticationAccessToken);
+        mongoTemplate.save(accessToken);
     }
 
     @Override
     public OAuth2AccessToken readAccessToken(String tokenId) {
         Query query = new Query();
         query.addCriteria(Criteria.where("tokenId").is(tokenId));
-        OAuth2AuthenticationAccessToken token = mongoTemplate.findOne(query, OAuth2AuthenticationAccessToken.class, "oauth2_access_token");
+        AccessToken token = mongoTemplate.findOne(query, AccessToken.class, "oauth2_access_token");
         if (null == token) {
             throw new InvalidTokenException("Token not valid");
         }
-        return token.getoAuth2AccessToken();
+        return token.getOAuth2AccessToken();
     }
 
     @Override
     public void removeAccessToken(OAuth2AccessToken accessToken) {
         Query query = new Query();
         query.addCriteria(Criteria.where("tokenId").is(accessToken.getValue()));
-        OAuth2AuthenticationAccessToken token = mongoTemplate.findOne(query, OAuth2AuthenticationAccessToken.class, "oauth2_access_token");
+        AccessToken token = mongoTemplate.findOne(query, AccessToken.class, "oauth2_access_token");
         if (token != null) {
             oAuth2AccessTokenRepository.delete(token);
         }
@@ -81,22 +81,22 @@ public class TokenStoreService implements TokenStore {
 
     @Override
     public void storeRefreshToken(OAuth2RefreshToken refreshToken, OAuth2Authentication authentication) {
-        oAuth2RefreshTokenRepository.save(new OAuth2AuthenticationRefreshToken(refreshToken, authentication));
+        refreshTokenRepository.save(new RefreshToken(refreshToken, authentication));
     }
 
     @Override
     public OAuth2RefreshToken readRefreshToken(String accessToken) {
         Query query = new Query();
         query.addCriteria(Criteria.where("tokenId").is(accessToken));
-        OAuth2AuthenticationRefreshToken token = mongoTemplate.findOne(query, OAuth2AuthenticationRefreshToken.class, "oauth2_refresh_token");
-        return token.getoAuth2RefreshToken();
+        RefreshToken token = mongoTemplate.findOne(query, RefreshToken.class, "oauth2_refresh_token");
+        return token.getOAuth2RefreshToken();
     }
 
     @Override
     public OAuth2Authentication readAuthenticationForRefreshToken(OAuth2RefreshToken token) {
         Query query = new Query();
         query.addCriteria(Criteria.where("tokenId").is(token.getValue()));
-        OAuth2AuthenticationRefreshToken auth2AuthenticationRefreshToken = mongoTemplate.findOne(query, OAuth2AuthenticationRefreshToken.class, "oauth2_refresh_token");
+        RefreshToken auth2AuthenticationRefreshToken = mongoTemplate.findOne(query, RefreshToken.class, "oauth2_refresh_token");
         return auth2AuthenticationRefreshToken.getAuthentication();
     }
 
@@ -104,9 +104,9 @@ public class TokenStoreService implements TokenStore {
     public void removeRefreshToken(OAuth2RefreshToken accessToken) {
         Query query = new Query();
         query.addCriteria(Criteria.where("tokenId").is(accessToken.getValue()));
-        OAuth2AuthenticationRefreshToken token = mongoTemplate.findOne(query, OAuth2AuthenticationRefreshToken.class, "oauth2_refresh_token");
+        RefreshToken token = mongoTemplate.findOne(query, RefreshToken.class, "oauth2_refresh_token");
         if (token != null) {
-            oAuth2RefreshTokenRepository.delete(token);
+            refreshTokenRepository.delete(token);
         }
     }
 
@@ -114,7 +114,7 @@ public class TokenStoreService implements TokenStore {
     public void removeAccessTokenUsingRefreshToken(OAuth2RefreshToken refreshToken) {
         Query query = new Query();
         query.addCriteria(Criteria.where("refreshToken").is(refreshToken.getValue()));
-        OAuth2AuthenticationAccessToken token = mongoTemplate.findOne(query, OAuth2AuthenticationAccessToken.class, "oauth2_access_token");
+        AccessToken token = mongoTemplate.findOne(query, AccessToken.class, "oauth2_access_token");
         if (token != null) {
             oAuth2AccessTokenRepository.delete(token);
         }
@@ -128,15 +128,15 @@ public class TokenStoreService implements TokenStore {
         }
         Query query = new Query();
         query.addCriteria(Criteria.where("authenticationId").is(authenticationId));
-        OAuth2AuthenticationAccessToken token = mongoTemplate.findOne(query, OAuth2AuthenticationAccessToken.class, "oauth2_access_token");
-        return token == null ? null : token.getoAuth2AccessToken();
+        AccessToken token = mongoTemplate.findOne(query, AccessToken.class, "oauth2_access_token");
+        return token == null ? null : token.getOAuth2AccessToken();
     }
 
     @Override
     public Collection<OAuth2AccessToken> findTokensByClientId(String clientId) {
         Query query = new Query();
         query.addCriteria(Criteria.where("clientId").is(clientId));
-        List<OAuth2AuthenticationAccessToken> accessTokens = mongoTemplate.find(query, OAuth2AuthenticationAccessToken.class, "oauth2_access_token");
+        List<AccessToken> accessTokens = mongoTemplate.find(query, AccessToken.class, "oauth2_access_token");
         return extractAccessTokens(accessTokens);
     }
 
@@ -145,15 +145,17 @@ public class TokenStoreService implements TokenStore {
         Query query = new Query();
         query.addCriteria(Criteria.where("clientId").is(clientId));
         query.addCriteria(Criteria.where("userName").is(userName));
-        List<OAuth2AuthenticationAccessToken> accessTokens = mongoTemplate.find(query, OAuth2AuthenticationAccessToken.class, "oauth2_access_token");
+        List<AccessToken> accessTokens = mongoTemplate.find(query, AccessToken.class, "oauth2_access_token");
         return extractAccessTokens(accessTokens);
     }
 
-    private Collection<OAuth2AccessToken> extractAccessTokens(List<OAuth2AuthenticationAccessToken> tokens) {
+    private Collection<OAuth2AccessToken> extractAccessTokens(List<AccessToken> tokens) {
         List<OAuth2AccessToken> accessTokens = new ArrayList<>();
-        tokens.stream().forEach(token -> {
-            accessTokens.add(token.getoAuth2AccessToken());
-        });
+
+        for (AccessToken token : tokens) {
+            accessTokens.add(token.getOAuth2AccessToken());
+        }
+
         return accessTokens;
     }
 

@@ -15,6 +15,6 @@ import st.malike.auth.server.model.ClientDetail;
  */
 public interface ClientDetailRepository extends MongoRepository<ClientDetail, Serializable> {
 
-    public ClientDetail findByClientId(String clientId);
+    ClientDetail findByClientId(String clientId);
 
 }

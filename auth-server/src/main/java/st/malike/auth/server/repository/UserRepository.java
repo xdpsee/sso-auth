@@ -15,6 +15,6 @@ import st.malike.auth.server.model.User;
  */
 public interface UserRepository extends MongoRepository<User, Serializable> {
 
-    public User findByEmail(String email);
+    User findByEmail(String email);
 
 }

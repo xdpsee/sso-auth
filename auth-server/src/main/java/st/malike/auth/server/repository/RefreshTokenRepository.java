@@ -5,14 +5,14 @@
 package st.malike.auth.server.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
-import st.malike.auth.server.model.OAuth2AuthenticationRefreshToken;
+import st.malike.auth.server.model.RefreshToken;
 
 /**
  *
  * @author malike_st
  */
 
-public interface OAuth2RefreshTokenRepository extends MongoRepository<OAuth2AuthenticationRefreshToken, String> {
+public interface RefreshTokenRepository extends MongoRepository<RefreshToken, String> {
 
    
 }

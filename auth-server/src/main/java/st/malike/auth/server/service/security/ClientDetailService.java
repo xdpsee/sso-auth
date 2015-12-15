@@ -84,11 +84,10 @@ public class ClientDetailService implements ClientDetailsService, ClientRegistra
 
     private List<BaseClientDetails> getClientsFromMongoDBClientDetails(List<ClientDetail> clientDetails) {
         List<BaseClientDetails> bcds = new LinkedList<>();
-        if (clientDetails != null && !clientDetails.isEmpty()) {
-            clientDetails.stream().forEach(mdbcd -> {
-                bcds.add(getClientFromMongoDBClientDetails(mdbcd));
-            });
+        for (ClientDetail client : clientDetails) {
+            bcds.add(getClientFromMongoDBClientDetails(client));
         }
+
         return bcds;
     }
 

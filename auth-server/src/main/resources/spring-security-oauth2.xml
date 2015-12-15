@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oauth="http://www.springframework.org/schema/security/oauth2"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:oauth="http://www.springframework.org/schema/security/oauth2"
        xmlns:sec="http://www.springframework.org/schema/security"
-       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/security/oauth2 http://www.springframework.org/schema/security/spring-security-oauth2-1.0.xsd
         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
     
     <sec:http pattern="/oauth/token" create-session="stateless"  authentication-manager-ref="authenticationManager" >
@@ -86,16 +85,12 @@
         <property name="realmName" value="/auth/" />
     </bean>
 
-
-
     <bean id="clientCredentialsTokenEndpointFilter" class="org.springframework.security.oauth2.provider.client.ClientCredentialsTokenEndpointFilter">
         <property name="authenticationManager" ref="authenticationManager" />
     </bean>
 
-    
     <bean id="tokenStore" class="st.malike.auth.server.service.security.TokenStoreService">        
     </bean>
-
 
     <bean id="tokenServices" class="org.springframework.security.oauth2.provider.token.DefaultTokenServices">
         <property name="tokenStore" ref="tokenStore" />
@@ -113,13 +108,12 @@
         <property name="realmName" value="/auth/" />
     </bean>
     
-    <bean id="userAuthProviderService" class="st.malike.auth.server.service.security.UserAuthProviderService">
-        <!--<property name="passwordEncoder" ref="passwordEncoder"/>-->
-    </bean>
-    
+    <bean id="userAuthProviderService"
+          class="st.malike.auth.server.service.security.UserAuthProviderService"/>
+
      
     <bean id="passwordEncoder"  class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
-        <constructor-arg name="strength" value="11" />
+        <constructor-arg name="strength" value="12" />
     </bean>
     
   

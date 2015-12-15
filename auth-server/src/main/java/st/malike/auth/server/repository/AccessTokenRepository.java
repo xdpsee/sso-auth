@@ -7,12 +7,12 @@ package st.malike.auth.server.repository;
 
 import java.io.Serializable;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import st.malike.auth.server.model.OAuth2AuthenticationAccessToken;
+import st.malike.auth.server.model.AccessToken;
 
 /**
  *
  * @author malike_st
  */
-public interface OAuth2AccessTokenRepository extends MongoRepository<OAuth2AuthenticationAccessToken, Serializable> {
+public interface AccessTokenRepository extends MongoRepository<AccessToken, Serializable> {
 
 }

@@ -30,12 +30,13 @@ public class UserAuthConfigService {
 
     public List<GrantedAuthority> getRights(User user) {
         List<GrantedAuthority> grantedAuthority = new LinkedList<>();
+
         List<String> right = user.getRights();
-        if (null != right && !right.isEmpty()) {
-            right.stream().forEach(r -> {
-                grantedAuthority.add(new SimpleGrantedAuthority(r));
-            });
+
+        for (String r : right) {
+            grantedAuthority.add(new SimpleGrantedAuthority(r));
         }
+
         return grantedAuthority;
     }
 

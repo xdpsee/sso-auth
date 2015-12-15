@@ -5,10 +5,9 @@
 package st.malike.auth.server.config;
 
 import com.mongodb.DBObject;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +27,7 @@ import st.malike.auth.server.service.security.UserAuthConfigService;
  * @author malike_st
  */
 @Configuration
-public class CustomMongoDBConvertor implements Converter<DBObject, OAuth2Authentication> {
+public class CustomMongoDBConverter implements Converter<DBObject, OAuth2Authentication> {
 
     @Autowired
     private UserAuthConfigService authConfigService;
@@ -45,32 +44,34 @@ public class CustomMongoDBConvertor implements Converter<DBObject, OAuth2Authent
                 null, null, null, null);
         DBObject userAuthorization = (DBObject) source.get("userAuthentication");
         if (null != userAuthorization) { //its a user
-            Object prinObj = userAuthorization.get("principal");
-            User u = null;
-            if ((null != prinObj) && prinObj instanceof String) {
-                u = authConfigService.getUser((String) prinObj);
-            } else if (null != prinObj) {
-                DBObject principalDBO = (DBObject) prinObj;
+            Object principal = userAuthorization.get("principal");
+            User user = null;
+            if ((null != principal) && principal instanceof String) {
+                user = authConfigService.getUser((String) principal);
+            } else if (null != principal) {
+                DBObject principalDBO = (DBObject) principal;
                 String email = (String) principalDBO.get("username");
-                u = authConfigService.getUser(email);
+                user = authConfigService.getUser(email);
             }
-            if (null == u) {
+            if (null == user) {
                 return null;
             }
 
-            Authentication userAuthentication = new UserAuthenticationToken(u.getEmail(),
-                    (String) userAuthorization.get("credentials"), authConfigService.getRights(u));
-            OAuth2Authentication authentication = new OAuth2Authentication(oAuth2Request, userAuthentication);
-            return authentication;
+            Authentication userAuthentication = new UserAuthenticationToken(user.getEmail()
+                    , userAuthorization.get("credentials")
+                    , authConfigService.getRights(user));
+            return new OAuth2Authentication(oAuth2Request, userAuthentication);
         } else { //its a client
-            String clientId = (String) storedRequest.get("clientId");
+            Object clientId = storedRequest.get("clientId");
             ClientDetails client = null;
             if ((null != clientId) && clientId instanceof String) {
-                client = clientDetailService.loadClientByClientId(clientId);
+                client = clientDetailService.loadClientByClientId((String)clientId);
             }
+
             if (null == client) {
                 return null;
             }
+
             Authentication userAuthentication = new ClientAuthenticationToken(client.getClientId(),
                     null, client.getAuthorities());
             return new OAuth2Authentication(oAuth2Request, userAuthentication);
